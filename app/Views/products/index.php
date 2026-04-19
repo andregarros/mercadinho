@@ -2,7 +2,7 @@
     <article class="card">
         <div class="card-head">
             <h2>Produtos</h2>
-            <form method="get" action="/products" class="inline-form">
+            <form method="get" action="<?= url('/products') ?>" class="inline-form">
                 <input type="text" name="search" placeholder="Buscar por nome ou código" value="<?= e($_GET['search'] ?? ''); ?>">
                 <button class="btn btn-light" type="submit">Buscar</button>
             </form>
@@ -40,7 +40,7 @@
                                     >
                                         Editar
                                     </button>
-                                    <form method="post" action="/products/delete">
+                                    <form method="post" action="<?= url('/products/delete') ?>">
                                         <?= csrf_field(); ?>
                                         <input type="hidden" name="id" value="<?= (int) $product['id']; ?>">
                                         <button class="btn btn-danger btn-sm" type="submit">Excluir</button>
@@ -60,7 +60,7 @@
     </article>
 
     <article class="stack">
-        <form method="post" action="/products/store" class="card stack">
+        <form method="post" action="<?= url('/products/store') ?>" class="card stack">
             <div class="card-head">
                 <h2>Novo produto</h2>
             </div>
@@ -84,7 +84,7 @@
             <button class="btn btn-primary" type="submit">Cadastrar produto</button>
         </form>
 
-        <form method="post" action="/products/update" class="card stack" id="update-form">
+        <form method="post" action="<?= url('/products/update') ?>" class="card stack" id="update-form">
             <div class="card-head">
                 <h2>Editar produto</h2>
             </div>

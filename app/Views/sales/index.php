@@ -20,7 +20,7 @@
                         <td><?= date('d/m/Y H:i', strtotime($sale['created_at'])); ?></td>
                         <td><?= e(ucfirst($sale['payment_method'])); ?></td>
                         <td><?= money((float) $sale['total_amount']); ?></td>
-                        <td><a class="btn btn-light btn-sm" href="/sales/show?id=<?= (int) $sale['id']; ?>">Ver detalhes</a></td>
+                        <td><a class="btn btn-light btn-sm" href="<?= url('/sales/show?id=' . (int) $sale['id']); ?>">Ver detalhes</a></td>
                     </tr>
                 <?php endforeach; ?>
                 <?php if (empty($sales)): ?>

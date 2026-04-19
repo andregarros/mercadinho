@@ -3,7 +3,7 @@
         <div class="card-head">
             <h2>Movimentar estoque</h2>
         </div>
-        <form method="post" action="/stock/move" class="stack">
+        <form method="post" action="<?= url('/stock/move') ?>" class="stack">
             <?= csrf_field(); ?>
             <label class="field">
                 <span>Produto</span>

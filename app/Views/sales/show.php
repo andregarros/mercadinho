@@ -6,7 +6,7 @@
         <p><strong>Data:</strong> <?= date('d/m/Y H:i', strtotime($sale['created_at'])); ?></p>
         <p><strong>Pagamento:</strong> <?= e(ucfirst($sale['payment_method'])); ?></p>
         <p><strong>Total:</strong> <?= money((float) $sale['total_amount']); ?></p>
-        <a class="btn btn-light" href="/sales">Voltar</a>
+        <a class="btn btn-light" href="<?= url('/sales') ?>">Voltar</a>
     </article>
 
     <article class="card">

@@ -435,26 +435,50 @@ td {
 }
 
 .scanner-box {
-    min-height: 280px;
-    border-radius: 22px;
-    border: 2px solid rgba(23, 66, 60, 0.18);
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    max-height: 380px;
+    border-radius: 18px;
+    border: 2px solid rgba(23, 66, 60, 0.2);
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.12);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    background: #000;
     position: relative;
+    box-shadow: 0 8px 24px rgba(23, 66, 60, 0.12);
+    margin: 0;
+    padding: 0;
 }
 
-.scanner-box::after {
+.scanner-box video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.scanner-box canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.scanner-box::before {
     content: '';
     position: absolute;
-    inset: 16px;
-    border: 2px dashed rgba(255, 255, 255, 0.25);
-    border-radius: 18px;
+    inset: 0;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
     pointer-events: none;
 }
 
 .hidden {
     display: none;
+}
+
+@media (max-width: 768px) {
+    .scanner-box {
+        aspect-ratio: 16 / 9;
+        max-height: 280px;
+    }
 }
 
 @media (max-width: 1080px) {

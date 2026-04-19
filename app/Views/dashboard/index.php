@@ -54,9 +54,9 @@
         <h2>Atalhos rápidos</h2>
         <p>Abra o caixa, cadastre produtos ou atualize estoque sem sair do celular.</p>
         <div class="quick-actions">
-            <a class="btn btn-primary" href="/pos">Abrir caixa</a>
-            <a class="btn btn-secondary" href="/products">Cadastrar produto</a>
-            <a class="btn btn-light" href="/stock">Movimentar estoque</a>
+            <a class="btn btn-primary" href="<?= url('/pos') ?>">Abrir caixa</a>
+            <a class="btn btn-secondary" href="<?= url('/products') ?>">Cadastrar produto</a>
+            <a class="btn btn-light" href="<?= url('/stock') ?>">Movimentar estoque</a>
         </div>
     </article>
 </section>
