@@ -6,10 +6,10 @@
         </div>
 
         <label class="field">
-            <span>Digite ou escaneie o código</span>
+            <span>Digite o código de barras</span>
             <div class="barcode-row">
-                <input type="text" id="barcode-input" placeholder="789..." autocomplete="off" autofocus>
-                <button class="btn btn-light" type="button" id="scan-toggle">📷 Câmera</button>
+                <input type="text" id="barcode-input" placeholder="Digite o código..." autocomplete="off" autofocus>
+                <button class="btn btn-light" type="button" id="clear-btn">Limpar</button>
             </div>
         </label>
 
@@ -42,5 +42,4 @@
     </article>
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0"></script>
 <script src="<?= asset('assets/js/pos.js'); ?>"></script>
