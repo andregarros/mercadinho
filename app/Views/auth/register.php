@@ -3,7 +3,7 @@
     <p>Comece com trial de 14 dias para testar o sistema.</p>
 </div>
 
-<form method="post" action="/register" class="stack">
+<form method="post" action="<?= url('/register') ?>" class="stack">
     <?= csrf_field(); ?>
     <label class="field">
         <span>Nome do mercadinho</span>
@@ -24,4 +24,4 @@
     <button class="btn btn-primary" type="submit">Criar conta</button>
 </form>
 
-<p class="auth-link">Já tem conta? <a href="/login">Fazer login</a></p>
+<p class="auth-link">Já tem conta? <a href="<?= url('/login') ?>">Fazer login</a></p>

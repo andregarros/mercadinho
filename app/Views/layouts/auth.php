@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#17423c">
     <title><?= e(app_name()); ?></title>
-    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="manifest" href="<?= url('/manifest.webmanifest') ?>">
     <link rel="icon" href="<?= asset('assets/icons/icon.svg'); ?>" type="image/svg+xml">
     <link rel="stylesheet" href="<?= asset('assets/css/app.css'); ?>">
 </head>

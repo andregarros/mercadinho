@@ -98,7 +98,7 @@ if (barcodeInput && cartItemsContainer) {
         if (!barcode) return;
 
         try {
-            const response = await fetch(`/pos/product?barcode=${encodeURIComponent(barcode)}`);
+            const response = await fetch(`${window.APP_BASE_URL}/pos/product?barcode=${encodeURIComponent(barcode)}`);
             const data = await response.json();
 
             if (!response.ok || !data.success) {
@@ -138,7 +138,7 @@ if (barcodeInput && cartItemsContainer) {
         checkoutButton.textContent = 'Finalizando...';
 
         try {
-            const response = await fetch('/pos/checkout', {
+            const response = await fetch(`${window.APP_BASE_URL}/pos/checkout`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -189,11 +189,19 @@ if (barcodeInput && cartItemsContainer) {
                 target: scannerBox,
                 constraints: {
                     facingMode: 'environment',
+                    width: { min: 640 },
+                    height: { min: 480 },
                 },
+            },
+            locator: {
+                patchSize: 'medium',
+                halfSample: true,
             },
             decoder: {
                 readers: ['ean_reader', 'ean_8_reader', 'code_128_reader'],
             },
+            numOfWorkers: navigator.hardwareConcurrency ? navigator.hardwareConcurrency : 4,
+            frequency: 10,
         }, (error) => {
             if (error) {
                 updateFeedback('Não foi possível iniciar a câmera.', 'error');
@@ -225,4 +233,5 @@ if (barcodeInput && cartItemsContainer) {
     });
 
     renderCart();
+    startScanner();
 }

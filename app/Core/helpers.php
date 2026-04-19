@@ -27,7 +27,14 @@ function app_name(): string
 
 function asset(string $path): string
 {
-    return '/public/' . ltrim($path, '/');
+    $baseUrl = config('app.base_url', '/');
+    return rtrim($baseUrl, '/') . '/public/' . ltrim($path, '/');
+}
+
+function url(string $path): string
+{
+    $baseUrl = config('app.base_url', '/');
+    return rtrim($baseUrl, '/') . $path;
 }
 
 function auth_check(): bool
@@ -97,5 +104,12 @@ function e(?string $value): string
 function is_active_path(string $path): bool
 {
     $current = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    $baseUrl = config('app.base_url', '/');
+    if ($baseUrl !== '/' && str_starts_with($current, $baseUrl)) {
+        $current = substr($current, strlen($baseUrl));
+        if ($current === '') {
+            $current = '/';
+        }
+    }
     return $current === $path;
 }

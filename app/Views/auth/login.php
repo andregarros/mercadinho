@@ -3,7 +3,7 @@
     <p>Acesse seu caixa e estoque em segundos.</p>
 </div>
 
-<form method="post" action="/login" class="stack">
+<form method="post" action="<?= url('/login') ?>" class="stack">
     <?= csrf_field(); ?>
     <label class="field">
         <span>E-mail</span>
@@ -16,4 +16,4 @@
     <button class="btn btn-primary" type="submit">Entrar</button>
 </form>
 
-<p class="auth-link">Ainda não tem conta? <a href="/register">Criar mercadinho</a></p>
+<p class="auth-link">Ainda não tem conta? <a href="<?= url('/register') ?>">Criar mercadinho</a></p>

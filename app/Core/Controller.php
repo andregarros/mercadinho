@@ -22,7 +22,9 @@ abstract class Controller
 
     protected function redirect(string $path): never
     {
-        header('Location: ' . $path);
+        $config = Container::get('config');
+        $baseUrl = $config['app']['base_url'];
+        header('Location: ' . $baseUrl . $path);
         exit;
     }
 

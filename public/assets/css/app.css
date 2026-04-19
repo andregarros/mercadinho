@@ -435,11 +435,22 @@ td {
 }
 
 .scanner-box {
-    min-height: 220px;
+    min-height: 280px;
     border-radius: 22px;
-    border: 2px dashed rgba(23, 66, 60, 0.2);
+    border: 2px solid rgba(23, 66, 60, 0.18);
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.64);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    position: relative;
+}
+
+.scanner-box::after {
+    content: '';
+    position: absolute;
+    inset: 16px;
+    border: 2px dashed rgba(255, 255, 255, 0.25);
+    border-radius: 18px;
+    pointer-events: none;
 }
 
 .hidden {

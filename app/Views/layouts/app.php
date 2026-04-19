@@ -12,10 +12,13 @@ $isExpired = ($user['plan_status'] ?? '') === 'expired';
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title><?= e(app_name()); ?></title>
-    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="manifest" href="<?= url('/manifest.webmanifest') ?>">
     <link rel="icon" href="<?= asset('assets/icons/icon.svg'); ?>" type="image/svg+xml">
     <link rel="stylesheet" href="<?= asset('assets/css/app.css'); ?>">
-    <script>window.APP_CSRF = '<?= e(csrf_token()); ?>';</script>
+    <script>
+        window.APP_CSRF = '<?= e(csrf_token()); ?>';
+        window.APP_BASE_URL = '<?= e(rtrim(config('app.base_url', '/'), '/')); ?>';
+    </script>
 </head>
 <body>
     <div class="app-shell">
@@ -30,15 +33,15 @@ $isExpired = ($user['plan_status'] ?? '') === 'expired';
                 </div>
 
                 <nav class="nav-list">
-                    <a class="<?= is_active_path('/dashboard') || is_active_path('/') ? 'active' : ''; ?>" href="/dashboard">Dashboard</a>
-                    <a class="<?= is_active_path('/pos') ? 'active' : ''; ?>" href="/pos">Caixa</a>
-                    <a class="<?= is_active_path('/products') ? 'active' : ''; ?>" href="/products">Produtos</a>
-                    <a class="<?= is_active_path('/stock') ? 'active' : ''; ?>" href="/stock">Estoque</a>
-                    <a class="<?= is_active_path('/sales') ? 'active' : ''; ?>" href="/sales">Vendas</a>
+                    <a class="<?= is_active_path('/dashboard') || is_active_path('/') ? 'active' : ''; ?>" href="<?= url('/dashboard') ?>">Dashboard</a>
+                    <a class="<?= is_active_path('/pos') ? 'active' : ''; ?>" href="<?= url('/pos') ?>">Caixa</a>
+                    <a class="<?= is_active_path('/products') ? 'active' : ''; ?>" href="<?= url('/products') ?>">Produtos</a>
+                    <a class="<?= is_active_path('/stock') ? 'active' : ''; ?>" href="<?= url('/stock') ?>">Estoque</a>
+                    <a class="<?= is_active_path('/sales') ? 'active' : ''; ?>" href="<?= url('/sales') ?>">Vendas</a>
                 </nav>
             </div>
 
-            <form method="post" action="/logout">
+            <form method="post" action="<?= url('/logout') ?>">
                 <?= csrf_field(); ?>
                 <button class="btn btn-light w-full" type="submit">Sair</button>
             </form>

@@ -41,18 +41,20 @@ final class DashboardController extends Controller
 
     public function manifest(): void
     {
+        $config = App\Core\Container::get('config');
+        $baseUrl = $config['app']['base_url'];
         header('Content-Type: application/manifest+json; charset=utf-8');
         echo json_encode([
             'name' => app_name(),
             'short_name' => 'Mercadinho',
-            'start_url' => '/dashboard',
+            'start_url' => $baseUrl . '/dashboard',
             'display' => 'standalone',
             'background_color' => '#f5efe2',
             'theme_color' => '#17423c',
             'description' => 'PDV simples para pequenos mercadinhos.',
             'icons' => [
                 [
-                    'src' => '/public/assets/icons/icon.svg',
+                    'src' => $baseUrl . '/assets/icons/icon.svg',
                     'sizes' => 'any',
                     'type' => 'image/svg+xml',
                     'purpose' => 'any maskable',
