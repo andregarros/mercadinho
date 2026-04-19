@@ -168,83 +168,65 @@ if (barcodeInput && cartItemsContainer) {
     });
 
     const stopScanner = () => {
-        if (window.Quagga && scannerActive) {
-            window.Quagga.stop();
+        if (window.html5QrcodeScanner) {
+            try {
+                window.html5QrcodeScanner.clear();
+            } catch (e) {
+                console.log('Erro ao parar scanner:', e);
+            }
         }
         scannerActive = false;
+        scannerBox.innerHTML = '';
         scannerBox.classList.add('hidden');
         scanToggle.textContent = 'Abrir câmera';
     };
 
     const startScanner = async () => {
-        if (!window.Quagga) {
+        if (!window.Html5QrcodeScanner) {
             updateFeedback('Biblioteca do scanner não carregou.', 'error');
             return;
         }
 
         scannerBox.classList.remove('hidden');
+        scannerBox.innerHTML = '<div id="qr-reader"></div>';
 
-        await window.Quagga.init({
-            inputStream: {
-                name: 'Live',
-                type: 'LiveStream',
-                target: scannerBox,
-                constraints: {
-                    facingMode: 'environment',
-                    width: { ideal: 1280 },
-                    height: { ideal: 960 },
-                },
-                area: {
-                    top: '10%',
-                    right: '10%',
-                    left: '10%',
-                    bottom: '10%',
-                },
-            },
-            locator: {
-                patchSize: 'large',
-                halfSample: false,
-            },
-            numOfWorkers: navigator.hardwareConcurrency ? Math.min(navigator.hardwareConcurrency, 4) : 4,
-            frequency: 10,
-            decoder: {
-                readers: [
-                    'ean_reader',
-                    'ean_8_reader',
-                    'code_128_reader',
-                    'code_39_reader',
-                    'upc_reader',
-                    'upc_e_reader',
-                ],
-            },
-        }, (error) => {
-            if (error) {
-                updateFeedback('Não foi possível iniciar a câmera.', 'error');
-                stopScanner();
-                return;
-            }
+        try {
+            window.html5QrcodeScanner = new window.Html5QrcodeScanner('qr-reader', {
+                fps: 10,
+                qrbox: { width: 280, height: 280 },
+                rememberLastUsedCamera: true,
+                facingMode: 'environment',
+                disableFlip: false,
+            }, true);
 
-            window.Quagga.start();
+            window.html5QrcodeScanner.render((decodedText, decodedResult) => {
+                const now = Date.now();
+                
+                console.log('Detectado:', decodedText);
+                
+                if (decodedText === lastScannedCode && now - lastScanTime < 800) {
+                    console.log('Deduplicado');
+                    return;
+                }
+
+                lastScannedCode = decodedText;
+                lastScanTime = now;
+
+                console.log('Processando:', decodedText);
+                updateFeedback(`✓ Lido: ${decodedText}`);
+                fetchProduct(decodedText);
+            }, (error) => {
+                // Silenciar erro de "não lido" que aparece constantemente
+            });
+
             scannerActive = true;
             scanToggle.textContent = 'Fechar câmera';
-            updateFeedback('Scanner ativo. Aponte para o código.');
-        });
-
-        window.Quagga.offDetected();
-        window.Quagga.onDetected((result) => {
-            const code = result?.codeResult?.code;
-            const confidence = result?.codeResult?.confidence || 0;
-            if (!code || confidence < 0.5) return;
-            
-            const now = Date.now();
-            if (code === lastScannedCode && now - lastScanTime < 800) return;
-            
-            lastScannedCode = code;
-            lastScanTime = now;
-            
-            updateFeedback(`Lendo: ${code}`);
-            fetchProduct(code);
-        });
+            updateFeedback('📷 Scanner ativo. Aponte o código para a câmera.');
+        } catch (error) {
+            console.error('Erro ao iniciar scanner:', error);
+            updateFeedback('Não foi possível iniciar a câmera.', 'error');
+            stopScanner();
+        }
     };
 
     scanToggle.addEventListener('click', () => {

@@ -42,5 +42,5 @@
     </article>
 </section>
 
-<script src="https://unpkg.com/@ericblade/quagga2/dist/quagga.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
 <script src="<?= asset('assets/js/pos.js'); ?>"></script>
