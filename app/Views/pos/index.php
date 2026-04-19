@@ -8,8 +8,8 @@
         <label class="field">
             <span>Digite ou escaneie o código</span>
             <div class="barcode-row">
-                <input type="text" id="barcode-input" placeholder="789..." autocomplete="off">
-                <button class="btn btn-light" type="button" id="scan-toggle">Abrir câmera</button>
+                <input type="text" id="barcode-input" placeholder="789..." autocomplete="off" autofocus>
+                <button class="btn btn-light" type="button" id="scan-toggle">📷 Câmera</button>
             </div>
         </label>
 
@@ -42,5 +42,5 @@
     </article>
 </section>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0"></script>
 <script src="<?= asset('assets/js/pos.js'); ?>"></script>

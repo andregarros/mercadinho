@@ -168,64 +168,125 @@ if (barcodeInput && cartItemsContainer) {
     });
 
     const stopScanner = () => {
-        if (window.html5QrcodeScanner) {
-            try {
-                window.html5QrcodeScanner.clear();
-            } catch (e) {
-                console.log('Erro ao parar scanner:', e);
-            }
+        if (window.scannerStream) {
+            window.scannerStream.getTracks().forEach(track => track.stop());
+            window.scannerStream = null;
         }
+        window.scannerContinue = false;
         scannerActive = false;
         scannerBox.innerHTML = '';
         scannerBox.classList.add('hidden');
-        scanToggle.textContent = 'Abrir câmera';
+        scanToggle.textContent = '📷 Câmera';
+        barcodeInput.focus();
     };
 
     const startScanner = async () => {
-        if (!window.Html5QrcodeScanner) {
-            updateFeedback('Biblioteca do scanner não carregou.', 'error');
-            return;
-        }
-
-        scannerBox.classList.remove('hidden');
-        scannerBox.innerHTML = '<div id="qr-reader"></div>';
-
         try {
-            window.html5QrcodeScanner = new window.Html5QrcodeScanner('qr-reader', {
-                fps: 10,
-                qrbox: { width: 280, height: 280 },
-                rememberLastUsedCamera: true,
-                facingMode: 'environment',
-                disableFlip: false,
-            }, true);
+            if (typeof ZXing === 'undefined') {
+                console.error('ZXing não carregou');
+                updateFeedback('⚠️ Scanner indisponível. Digite o código manualmente.', 'error');
+                barcodeInput.focus();
+                return;
+            }
 
-            window.html5QrcodeScanner.render((decodedText, decodedResult) => {
-                const now = Date.now();
-                
-                console.log('Detectado:', decodedText);
-                
-                if (decodedText === lastScannedCode && now - lastScanTime < 800) {
-                    console.log('Deduplicado');
-                    return;
-                }
+            console.log('Iniciando scanner com ZXing...');
+            scannerBox.classList.remove('hidden');
+            scannerBox.innerHTML = '<video id="qr-video" style="width:100%;height:100%;border-radius:14px;"></video>';
 
-                lastScannedCode = decodedText;
-                lastScanTime = now;
+            const video = document.getElementById('qr-video');
+            const codeReader = new ZXing.BrowserMultiFormatReader();
 
-                console.log('Processando:', decodedText);
-                updateFeedback(`✓ Lido: ${decodedText}`);
-                fetchProduct(decodedText);
-            }, (error) => {
-                // Silenciar erro de "não lido" que aparece constantemente
+            window.scannerContinue = true;
+            
+            const constraints = {
+                video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 960 } },
+                audio: false,
+            };
+
+            console.log('Solicitando acesso à câmera...');
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            window.scannerStream = stream;
+            video.srcObject = stream;
+
+            await new Promise(resolve => {
+                video.onloadedmetadata = resolve;
             });
 
             scannerActive = true;
-            scanToggle.textContent = 'Fechar câmera';
-            updateFeedback('📷 Scanner ativo. Aponte o código para a câmera.');
+            scanToggle.textContent = '❌ Fechar';
+            updateFeedback('📷 Câmera aberta. Aponte o código para ler.');
+            console.log('Scanner iniciado com sucesso');
+
+            const detectBarcode = async () => {
+                if (!window.scannerContinue || !scannerActive) return;
+
+                try {
+                    const canvas = document.createElement('canvas');
+                    const { videoWidth, videoHeight } = video;
+                    
+                    if (videoWidth === 0 || videoHeight === 0) {
+                        requestAnimationFrame(detectBarcode);
+                        return;
+                    }
+
+                    canvas.width = videoWidth;
+                    canvas.height = videoHeight;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+
+                    const luminanceSource = new ZXing.HTMLCanvasElementLuminanceSource(canvas);
+                    const binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminanceSource));
+
+                    try {
+                        const result = codeReader.decodeFromBitmap(binaryBitmap);
+                        if (result) {
+                            const code = result.getText();
+
+                            if (code) {
+                                const now = Date.now();
+                                if (code === lastScannedCode && now - lastScanTime < 800) {
+                                    requestAnimationFrame(detectBarcode);
+                                    return;
+                                }
+
+                                lastScannedCode = code;
+                                lastScanTime = now;
+
+                                console.log('✓ Código detectado:', code);
+                                updateFeedback(`✓ Lido: ${code}`);
+                                fetchProduct(code);
+                                window.scannerContinue = false;
+                                return;
+                            }
+                        }
+                    } catch (e) {
+                        // Sem código detectado, continuar
+                    }
+                } catch (err) {
+                    console.error('Erro na detecção:', err);
+                    window.scannerContinue = false;
+                }
+
+                if (window.scannerContinue) {
+                    requestAnimationFrame(detectBarcode);
+                }
+            };
+
+            detectBarcode();
         } catch (error) {
-            console.error('Erro ao iniciar scanner:', error);
-            updateFeedback('Não foi possível iniciar a câmera.', 'error');
+            console.error('Erro ao iniciar câmera:', error);
+            
+            let msg = 'Erro ao acessar câmera.';
+            if (error.name === 'NotAllowedError') {
+                msg = '⚠️ Permissão negada. Ative câmera nas configurações do navegador.';
+            } else if (error.name === 'NotFoundError') {
+                msg = '⚠️ Câmera não encontrada no dispositivo.';
+            }
+            
+            updateFeedback(msg, 'error');
             stopScanner();
+            barcodeInput.focus();
         }
     };
 
