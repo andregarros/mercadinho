@@ -11,6 +11,8 @@ if (barcodeInput && cartItemsContainer) {
     let cart = [];
     let paymentMethod = 'dinheiro';
     let scannerActive = false;
+    let lastScannedCode = '';
+    let lastScanTime = 0;
 
     const money = (value) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -90,7 +92,7 @@ if (barcodeInput && cartItemsContainer) {
         }
 
         beep();
-        updateFeedback(`${product.name} adicionado ao carrinho.`);
+        updateFeedback(`✓ ${product.name} adicionado!`);
         renderCart();
     };
 
@@ -189,19 +191,32 @@ if (barcodeInput && cartItemsContainer) {
                 target: scannerBox,
                 constraints: {
                     facingMode: 'environment',
-                    width: { min: 640 },
-                    height: { min: 480 },
+                    width: { ideal: 1280 },
+                    height: { ideal: 960 },
+                },
+                area: {
+                    top: '10%',
+                    right: '10%',
+                    left: '10%',
+                    bottom: '10%',
                 },
             },
             locator: {
-                patchSize: 'medium',
-                halfSample: true,
+                patchSize: 'large',
+                halfSample: false,
             },
-            decoder: {
-                readers: ['ean_reader', 'ean_8_reader', 'code_128_reader'],
-            },
-            numOfWorkers: navigator.hardwareConcurrency ? navigator.hardwareConcurrency : 4,
+            numOfWorkers: navigator.hardwareConcurrency ? Math.min(navigator.hardwareConcurrency, 4) : 4,
             frequency: 10,
+            decoder: {
+                readers: [
+                    'ean_reader',
+                    'ean_8_reader',
+                    'code_128_reader',
+                    'code_39_reader',
+                    'upc_reader',
+                    'upc_e_reader',
+                ],
+            },
         }, (error) => {
             if (error) {
                 updateFeedback('Não foi possível iniciar a câmera.', 'error');
@@ -218,9 +233,17 @@ if (barcodeInput && cartItemsContainer) {
         window.Quagga.offDetected();
         window.Quagga.onDetected((result) => {
             const code = result?.codeResult?.code;
-            if (!code) return;
+            const confidence = result?.codeResult?.confidence || 0;
+            if (!code || confidence < 0.5) return;
+            
+            const now = Date.now();
+            if (code === lastScannedCode && now - lastScanTime < 800) return;
+            
+            lastScannedCode = code;
+            lastScanTime = now;
+            
+            updateFeedback(`Lendo: ${code}`);
             fetchProduct(code);
-            stopScanner();
         });
     };
 

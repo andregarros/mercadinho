@@ -436,38 +436,39 @@ td {
 
 .scanner-box {
     width: 100%;
-    aspect-ratio: 4 / 3;
-    max-height: 380px;
-    border-radius: 18px;
+    height: 320px;
+    border-radius: 16px;
     border: 2px solid rgba(23, 66, 60, 0.2);
     overflow: hidden;
     background: #000;
     position: relative;
-    box-shadow: 0 8px 24px rgba(23, 66, 60, 0.12);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     margin: 0;
     padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.scanner-box video {
+.scanner-box video,
+.scanner-box canvas,
+.scanner-box > div {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
-}
-
-.scanner-box canvas {
-    width: 100%;
-    height: 100%;
-    display: block;
+    margin: 0;
+    padding: 0;
 }
 
 .scanner-box::before {
     content: '';
     position: absolute;
     inset: 0;
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    border-radius: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
     pointer-events: none;
+    z-index: 1;
 }
 
 .hidden {
@@ -476,8 +477,7 @@ td {
 
 @media (max-width: 768px) {
     .scanner-box {
-        aspect-ratio: 16 / 9;
-        max-height: 280px;
+        height: 240px;
     }
 }
 
