@@ -7,6 +7,12 @@ namespace App\Core;
 final class Router
 {
     private array $routes = [];
+    private string $basePath = '/';
+
+    public function setBasePath(string $basePath): void
+    {
+        $this->basePath = rtrim($basePath, '/');
+    }
 
     public function get(string $path, array $handler): void
     {
@@ -26,6 +32,14 @@ final class Router
     public function dispatch(string $method, string $uri): void
     {
         $path = parse_url($uri, PHP_URL_PATH) ?: '/';
+
+        if ($this->basePath !== '/' && str_starts_with($path, $this->basePath)) {
+            $path = substr($path, strlen($this->basePath));
+            if ($path === '') {
+                $path = '/';
+            }
+        }
+
         $handler = $this->routes[$method][$path] ?? null;
 
         if ($handler === null) {

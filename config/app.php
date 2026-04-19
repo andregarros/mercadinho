@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
     'app' => [
         'name' => 'Mercadinho PDV',
-        'base_url' => '/',
+        'base_url' => '/mercadinho',
         'timezone' => 'America/Sao_Paulo',
         'low_stock_threshold' => 5,
     ],
