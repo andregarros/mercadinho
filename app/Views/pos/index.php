@@ -6,14 +6,16 @@
         </div>
 
         <label class="field">
-            <span>Digite o código de barras</span>
+            <span>Digite ou escaneie o código</span>
             <div class="barcode-row">
-                <input type="text" id="barcode-input" placeholder="Digite o código..." autocomplete="off" autofocus>
-                <button class="btn btn-light" type="button" id="clear-btn">Limpar</button>
+                <input type="text" id="barcode-input" placeholder="789456123..." autocomplete="off" autofocus>
+                <button class="btn btn-light" type="button" id="scan-toggle">📷 Câmera</button>
             </div>
         </label>
 
-        <div id="scanner" class="scanner-box hidden"></div>
+        <div id="scanner" class="scanner-box hidden">
+            <div id="qr-reader"></div>
+        </div>
         <div id="pos-feedback" class="feedback-text">Pronto para vender.</div>
 
         <div class="payment-grid">
@@ -42,4 +44,5 @@
     </article>
 </section>
 
+<script src="https://unpkg.com/html5-qrcode"></script>
 <script src="<?= asset('assets/js/pos.js'); ?>"></script>
