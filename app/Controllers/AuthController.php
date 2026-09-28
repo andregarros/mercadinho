@@ -6,6 +6,8 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Models\User;
+use App\Services\AppSettingsService;
+use App\Services\LoginThrottleService;
 
 final class AuthController extends Controller
 {
@@ -20,17 +22,33 @@ final class AuthController extends Controller
         $this->requireGuest();
         verify_csrf($_POST['csrf_token'] ?? null);
 
-        $email = trim($_POST['email'] ?? '');
-        $password = $_POST['password'] ?? '';
+        $email = mb_strtolower(trim((string) ($_POST['email'] ?? '')));
+        $password = (string) ($_POST['password'] ?? '');
 
-        $userModel = new User();
-        $user = $userModel->findByEmail($email);
-
-        if (!$user || !password_verify($password, $user['password'])) {
-            flash('error', 'E-mail ou senha inválidos.');
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') {
+            flash('error', 'Informe um e-mail valido e sua senha.');
             $this->redirect('/login');
         }
 
+        $userModel = new User();
+        $throttle = new LoginThrottleService();
+
+        try {
+            $throttle->ensureAllowed($email);
+        } catch (\RuntimeException $exception) {
+            flash('error', $exception->getMessage());
+            $this->redirect('/login');
+        }
+
+        $user = $userModel->findByEmail($email);
+
+        if (!$user || !password_verify($password, (string) $user['password'])) {
+            $throttle->registerFailure($email);
+            flash('error', 'E-mail ou senha invalidos.');
+            $this->redirect('/login');
+        }
+
+        $throttle->clear($email);
         $refreshed = $userModel->refreshPlanStatus((int) $user['id']) ?? $user;
         login_user($refreshed);
         flash('success', 'Login realizado com sucesso.');
@@ -48,29 +66,33 @@ final class AuthController extends Controller
         $this->requireGuest();
         verify_csrf($_POST['csrf_token'] ?? null);
 
-        $storeName = trim($_POST['store_name'] ?? '');
-        $name = trim($_POST['name'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-        $password = $_POST['password'] ?? '';
+        $storeName = trim((string) ($_POST['store_name'] ?? ''));
+        $name = trim((string) ($_POST['name'] ?? ''));
+        $email = mb_strtolower(trim((string) ($_POST['email'] ?? '')));
+        $password = (string) ($_POST['password'] ?? '');
 
-        if ($storeName === '' || $name === '' || $email === '' || $password === '') {
-            flash('error', 'Preencha todos os campos.');
+        if ($storeName === '' || $name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 8) {
+            flash('error', 'Preencha os dados corretamente. A senha deve ter no minimo 8 caracteres.');
             $this->redirect('/register');
         }
 
         $userModel = new User();
+        $settings = new AppSettingsService();
         if ($userModel->findByEmail($email)) {
-            flash('error', 'Este e-mail já está em uso.');
+            flash('error', 'Este e-mail ja esta em uso.');
             $this->redirect('/register');
         }
+
+        $trialDays = $settings->trialDays();
 
         $userModel->create([
             'store_name' => $storeName,
             'name' => $name,
             'email' => $email,
             'password' => $password,
-            'plan_status' => 'trial',
-            'plan_expires_at' => date('Y-m-d H:i:s', strtotime('+14 days')),
+            'is_admin' => $this->shouldCreateAsAdmin($email, $userModel),
+            'plan_status' => $trialDays > 0 ? 'trial' : 'expired',
+            'plan_expires_at' => $trialDays > 0 ? date('Y-m-d H:i:s', strtotime('+' . $trialDays . ' days')) : date('Y-m-d H:i:s'),
         ]);
 
         $user = $userModel->findByEmail($email);
@@ -78,7 +100,7 @@ final class AuthController extends Controller
             login_user($user);
         }
 
-        flash('success', 'Conta criada. Seu período de teste já está ativo.');
+        flash('success', 'Conta criada. Seu periodo de teste de ' . $trialDays . ' dias ja esta ativo.');
         $this->redirect('/dashboard');
     }
 
@@ -86,7 +108,17 @@ final class AuthController extends Controller
     {
         verify_csrf($_POST['csrf_token'] ?? null);
         logout_user();
-        flash('success', 'Sessão encerrada.');
+        flash('success', 'Sessao encerrada.');
         $this->redirect('/login');
+    }
+
+    private function shouldCreateAsAdmin(string $email, User $userModel): bool
+    {
+        $configuredAdmin = mb_strtolower(trim((string) config('app.admin_email', '')));
+        if ($configuredAdmin !== '' && $configuredAdmin === mb_strtolower($email)) {
+            return true;
+        }
+
+        return $userModel->countAdmins() === 0;
     }
 }

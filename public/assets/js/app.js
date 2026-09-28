@@ -16,6 +16,6 @@ document.querySelectorAll('.js-fill-form').forEach((button) => {
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js').catch(() => null);
+        navigator.serviceWorker.register(`${window.APP_BASE_URL}/service-worker.js`).catch(() => null);
     });
 }

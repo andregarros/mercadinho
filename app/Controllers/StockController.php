@@ -33,19 +33,25 @@ final class StockController extends Controller
 
         $userId = (int) auth_user()['id'];
         $productId = (int) ($_POST['product_id'] ?? 0);
-        $type = $_POST['type'] ?? 'in';
+        $type = (string) ($_POST['type'] ?? 'in');
         $quantity = max(1, (int) ($_POST['quantity'] ?? 1));
+        $note = trim((string) ($_POST['note'] ?? ''));
+
+        if (!in_array($type, ['in', 'out'], true)) {
+            flash('error', 'Tipo de movimentacao invalido.');
+            $this->redirect('/stock');
+        }
 
         $productModel = new Product();
         $product = $productModel->find($productId, $userId);
 
         if (!$product) {
-            flash('error', 'Produto não encontrado.');
+            flash('error', 'Produto nao encontrado.');
             $this->redirect('/stock');
         }
 
         if ($type === 'out' && ((int) $product['stock'] - $quantity) < 0) {
-            flash('error', 'Saída maior que o estoque disponível.');
+            flash('error', 'Saida maior que o estoque disponivel.');
             $this->redirect('/stock');
         }
 
@@ -57,10 +63,10 @@ final class StockController extends Controller
             'product_id' => $productId,
             'type' => $type,
             'quantity' => $quantity,
-            'note' => trim($_POST['note'] ?? ''),
+            'note' => mb_substr($note, 0, 255),
         ]);
 
-        flash('success', 'Movimentação registrada.');
+        flash('success', 'Movimentacao registrada.');
         $this->redirect('/stock');
     }
 }

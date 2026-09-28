@@ -8,6 +8,7 @@ use App\Core\Controller;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\User;
+use App\Services\Subscriptions\SubscriptionManager;
 
 final class DashboardController extends Controller
 {
@@ -18,7 +19,7 @@ final class DashboardController extends Controller
         $userModel = new User();
         $freshUser = $userModel->refreshPlanStatus((int) auth_user()['id']);
         if ($freshUser) {
-            login_user($freshUser);
+            $_SESSION['user'] = $freshUser;
         }
 
         $productModel = new Product();
@@ -29,6 +30,7 @@ final class DashboardController extends Controller
         $totals = $saleModel->totalsForDashboard($userId);
         $lowStock = $productModel->lowStockByUser($userId, $threshold);
         $topSeller = $productModel->topSellerByUser($userId);
+        $subscription = (new SubscriptionManager())->currentStateForUser($userId);
 
         $this->view('dashboard/index', [
             'totals' => $totals,
@@ -36,14 +38,14 @@ final class DashboardController extends Controller
             'lowStock' => $lowStock,
             'topSeller' => $topSeller,
             'threshold' => $threshold,
+            'subscription' => $subscription,
         ]);
     }
 
     public function manifest(): void
     {
-        $config = App\Core\Container::get('config');
-        $baseUrl = $config['app']['base_url'];
         header('Content-Type: application/manifest+json; charset=utf-8');
+        $baseUrl = rtrim((string) config('app.base_url', '/'), '/');
         echo json_encode([
             'name' => app_name(),
             'short_name' => 'Mercadinho',
@@ -54,7 +56,7 @@ final class DashboardController extends Controller
             'description' => 'PDV simples para pequenos mercadinhos.',
             'icons' => [
                 [
-                    'src' => $baseUrl . '/assets/icons/icon.svg',
+                    'src' => $baseUrl . '/public/assets/icons/icon.svg',
                     'sizes' => 'any',
                     'type' => 'image/svg+xml',
                     'purpose' => 'any maskable',

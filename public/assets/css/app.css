@@ -11,6 +11,7 @@
     --muted: #6d7b78;
     --line: rgba(23, 66, 60, 0.12);
     --shadow: 0 20px 50px rgba(17, 42, 39, 0.12);
+    --shadow-soft: 0 10px 30px rgba(17, 42, 39, 0.08);
     --radius: 24px;
 }
 
@@ -18,15 +19,22 @@
     box-sizing: border-box;
 }
 
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
 body {
     margin: 0;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     background:
         radial-gradient(circle at top right, rgba(216, 139, 56, 0.22), transparent 28%),
         radial-gradient(circle at left center, rgba(23, 66, 60, 0.14), transparent 26%),
         var(--bg);
     color: var(--text);
     min-height: 100vh;
+    line-height: 1.45;
+    overflow-x: hidden;
 }
 
 a {
@@ -36,7 +44,8 @@ a {
 
 button,
 input,
-select {
+select,
+textarea {
     font: inherit;
 }
 
@@ -146,6 +155,7 @@ select {
 
 .main-content {
     padding: 24px;
+    min-width: 0;
 }
 
 .topbar {
@@ -198,6 +208,29 @@ select {
     border-radius: var(--radius);
     padding: 22px;
     box-shadow: var(--shadow);
+    min-width: 0;
+}
+
+.pos-panel,
+.pos-cart {
+    position: relative;
+    overflow: hidden;
+}
+
+.pos-panel::before,
+.pos-cart::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 5px;
+    background: linear-gradient(90deg, rgba(216, 139, 56, 0.95), rgba(23, 66, 60, 0.9));
+    opacity: 0.9;
+}
+
+.pos-panel > *,
+.pos-cart > * {
+    position: relative;
+    z-index: 1;
 }
 
 .card-head,
@@ -210,6 +243,7 @@ select {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
 }
 
 .card-head {
@@ -245,6 +279,7 @@ select {
 
 .field input,
 .field select,
+.field textarea,
 .inline-form input {
     width: 100%;
     padding: 14px 16px;
@@ -252,6 +287,18 @@ select {
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.92);
     color: var(--text);
+    font-size: 16px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus,
+.inline-form input:focus {
+    outline: none;
+    border-color: rgba(23, 66, 60, 0.28);
+    box-shadow: 0 0 0 4px rgba(23, 66, 60, 0.08);
+    background: #fff;
 }
 
 .btn {
@@ -261,10 +308,15 @@ select {
     border-radius: 18px;
     transition: transform 0.15s ease, opacity 0.15s ease;
     font-weight: 600;
+    max-width: 100%;
 }
 
 .btn:hover {
     transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
 }
 
 .btn-primary {
@@ -310,6 +362,7 @@ select {
     background: rgba(23, 66, 60, 0.1);
     color: var(--primary);
     font-size: 0.85rem;
+    max-width: 100%;
 }
 
 .badge-success {
@@ -361,6 +414,14 @@ td {
     color: var(--muted);
 }
 
+.text-success {
+    color: var(--success);
+}
+
+.text-danger {
+    color: var(--danger);
+}
+
 .auth-link a {
     color: var(--primary);
     font-weight: 600;
@@ -369,6 +430,75 @@ td {
 .pos-cart {
     display: grid;
     gap: 18px;
+}
+
+.pos-panel {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(251, 248, 243, 0.92));
+}
+
+.pos-cart {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(246, 250, 248, 0.94));
+}
+
+.barcode-row {
+    align-items: stretch;
+}
+
+.barcode-row input {
+    flex: 1;
+    min-width: 0;
+    font-size: 1.05rem;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+}
+
+.barcode-row .btn {
+    white-space: nowrap;
+    min-width: 146px;
+}
+
+.feedback-text {
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(23, 66, 60, 0.05);
+    border: 1px solid rgba(23, 66, 60, 0.08);
+    font-size: 0.96rem;
+    overflow-wrap: anywhere;
+}
+
+.gateway-card {
+    padding: 18px;
+    border-radius: 20px;
+    border: 1px solid rgba(23, 66, 60, 0.08);
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: var(--shadow-soft);
+}
+
+.admin-user-list {
+    display: grid;
+    gap: 16px;
+}
+
+.admin-form-grid,
+.subscription-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.gateway-card-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.gateway-card-head h3 {
+    margin: 0 0 4px;
+}
+
+.webhook-list input[readonly] {
+    background: rgba(23, 66, 60, 0.04);
 }
 
 .cart-items {
@@ -381,10 +511,52 @@ td {
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 12px;
-    padding: 14px;
+    padding: 15px 16px;
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.82);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(249, 251, 250, 0.92));
     border: 1px solid rgba(23, 66, 60, 0.08);
+    box-shadow: var(--shadow-soft);
+}
+
+.item-info h4 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+}
+
+.item-info p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.94rem;
+}
+
+.item-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: center;
+}
+
+.item-controls button {
+    min-width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 11px;
+    background: rgba(23, 66, 60, 0.08);
+    color: var(--primary);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.item-controls span {
+    min-width: 24px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.item-controls .remove-btn {
+    background: rgba(196, 69, 54, 0.12);
+    color: var(--danger);
 }
 
 .cart-item small {
@@ -412,6 +584,7 @@ td {
     color: white;
     border-radius: 24px;
     padding: 20px;
+    box-shadow: 0 18px 40px rgba(23, 66, 60, 0.22);
 }
 
 .total-box strong {
@@ -420,12 +593,85 @@ td {
     margin-top: 8px;
 }
 
+.pix-panel {
+    display: grid;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(23, 66, 60, 0.05);
+    border: 1px solid rgba(23, 66, 60, 0.1);
+    min-width: 0;
+    overflow: hidden;
+}
+
+.pix-panel h3 {
+    margin: 0;
+}
+
+.pix-panel-body {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+}
+
+#pix-qr-image,
+#subscription-qr-image,
+.pix-qr-image {
+    width: min(240px, 100%);
+    max-width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    margin: 0 auto;
+    border-radius: 18px;
+    background: #fff;
+    padding: 12px;
+    border: 1px solid rgba(23, 66, 60, 0.08);
+}
+
+#subscription-panel .pix-panel-body {
+    justify-items: center;
+}
+
+#subscription-panel,
+.subscription-pix-panel-body {
+    width: 100%;
+    max-width: 100%;
+}
+
+#subscription-panel .field,
+#subscription-copy-paste,
+#pix-copy-paste {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+#subscription-copy-paste,
+#pix-copy-paste {
+    min-height: 96px;
+    resize: vertical;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
 .payment-chip {
-    padding: 12px 16px;
+    padding: 10px 14px;
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: 14px;
     background: white;
     cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(17, 42, 39, 0.04);
+    transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    flex: 1 1 96px;
+    min-width: 0;
+    min-height: 42px;
+    font-size: 0.92rem;
+}
+
+.payment-chip:hover {
+    transform: translateY(-1px);
 }
 
 .payment-chip.active {
@@ -436,13 +682,15 @@ td {
 
 .scanner-box {
     width: 100%;
-    height: 320px;
-    border-radius: 16px;
-    border: 2px solid rgba(23, 66, 60, 0.2);
+    height: 420px;
+    border-radius: 22px;
+    border: 1px solid rgba(23, 66, 60, 0.16);
     overflow: hidden;
-    background: #000;
+    background:
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.12), transparent 40%),
+        #091412;
     position: relative;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
     margin: 0;
     padding: 0;
     display: flex;
@@ -450,24 +698,70 @@ td {
     justify-content: center;
 }
 
-#qr-reader {
+.scanner-box::after {
+    content: 'Alinhe o codigo dentro da faixa';
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    z-index: 2;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(9, 20, 18, 0.72);
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.scanner-box[data-ready="false"]::after {
+    content: 'Abrindo camera traseira...';
+}
+
+.scanner-viewport {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.scanner-viewport video,
+.scanner-viewport canvas {
     width: 100% !important;
     height: 100% !important;
     border-radius: 14px !important;
+    object-fit: cover !important;
+    display: block;
 }
 
-#qr-reader video {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
+.scanner-line {
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, #ff7a59 18%, #ffd26a 50%, #ff7a59 82%, transparent 100%);
+    top: 50%;
+    left: 0;
+    z-index: 10;
+    box-shadow: 0 0 18px rgba(255, 122, 89, 0.78);
+    animation: scanner-sweep 3s ease-in-out infinite;
+}
+
+@keyframes scanner-sweep {
+    0%, 100% {
+        top: 10%;
+        opacity: 0.7;
+    }
+    50% {
+        top: 90%;
+        opacity: 1;
+    }
 }
 
 .scanner-box::before {
     content: '';
     position: absolute;
     inset: 0;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
     pointer-events: none;
     z-index: 1;
 }
@@ -477,8 +771,89 @@ td {
 }
 
 @media (max-width: 768px) {
+    .main-content {
+        padding: 14px;
+    }
+
+    .topbar h1 {
+        font-size: 1.35rem;
+    }
+
+    .topbar p,
+    .muted {
+        font-size: 0.92rem;
+    }
+
+    .card {
+        padding: 16px;
+        border-radius: 20px;
+    }
+
+    .card-head {
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .card-head h2 {
+        font-size: 1.15rem;
+    }
+
+    .badge {
+        font-size: 0.78rem;
+        padding: 6px 10px;
+    }
+
+    .btn {
+        padding: 12px 15px;
+        border-radius: 16px;
+    }
+
+    .btn-lg {
+        padding: 14px 15px;
+        font-size: 0.98rem;
+    }
+
+    .payment-chip {
+        padding: 9px 11px;
+        text-align: center;
+        font-size: 0.88rem;
+        min-height: 40px;
+    }
+
+    .feedback-text {
+        font-size: 0.9rem;
+    }
+
+    .total-box {
+        padding: 18px;
+        border-radius: 20px;
+    }
+
+    .total-box strong {
+        font-size: 1.7rem;
+    }
+
+    .cart-items {
+        min-height: auto;
+    }
+
+    .cart-item {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .item-controls {
+        gap: 6px;
+    }
+
+    .item-controls button {
+        min-width: 32px;
+        height: 32px;
+    }
+
     .scanner-box {
-        height: 240px;
+        height: 340px;
+        border-radius: 18px;
     }
 }
 
@@ -487,7 +862,9 @@ td {
     .grid-main,
     .page-grid,
     .pos-layout,
-    .auth-card {
+    .auth-card,
+    .admin-form-grid,
+    .subscription-summary {
         grid-template-columns: 1fr;
     }
 }
@@ -504,6 +881,7 @@ td {
 
     .topbar,
     .card-head,
+    .gateway-card-head,
     .inline-form,
     .barcode-row,
     .row-actions,
@@ -513,18 +891,94 @@ td {
     }
 
     .main-content {
-        padding: 16px;
+        padding: 14px;
     }
 
     .card {
-        padding: 18px;
-        border-radius: 22px;
+        padding: 16px;
+        border-radius: 20px;
     }
 
     .btn,
     .field input,
     .field select,
     .inline-form input {
-        min-height: 50px;
+        min-height: 46px;
+    }
+
+    .barcode-row .btn {
+        min-width: 100%;
+    }
+
+    .cart-item {
+        grid-template-columns: 1fr;
+    }
+
+    .item-controls {
+        justify-content: flex-start;
+    }
+
+    #pix-qr-image,
+    #subscription-qr-image,
+    .pix-qr-image {
+        width: min(200px, 100%);
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 10px;
+    }
+
+    .card {
+        padding: 12px;
+        border-radius: 16px;
+    }
+
+    .stack {
+        gap: 10px;
+    }
+
+    .topbar h1 {
+        font-size: 1.2rem;
+    }
+
+    .topbar p,
+    .muted,
+    .badge,
+    .item-info p,
+    .feedback-text {
+        font-size: 0.86rem;
+    }
+
+    .field input,
+    .field select,
+    .inline-form input,
+    .btn {
+        font-size: 16px;
+    }
+
+    .barcode-row input {
+        font-size: 0.96rem;
+        letter-spacing: 0.01em;
+    }
+
+    .payment-chip {
+        padding: 8px 10px;
+        font-size: 0.84rem;
+        min-height: 38px;
+    }
+
+    .scanner-box {
+        height: 300px;
+    }
+
+    .item-controls button {
+        min-width: 30px;
+        height: 30px;
+    }
+
+    .total-box strong {
+        font-size: 1.35rem;
     }
 }

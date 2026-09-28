@@ -2,12 +2,13 @@
 $flash = get_flash();
 $user = $currentUser;
 $isExpired = ($user['plan_status'] ?? '') === 'expired';
+$isAdmin = !empty($user['is_admin']);
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#17423c">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -34,10 +35,15 @@ $isExpired = ($user['plan_status'] ?? '') === 'expired';
 
                 <nav class="nav-list">
                     <a class="<?= is_active_path('/dashboard') || is_active_path('/') ? 'active' : ''; ?>" href="<?= url('/dashboard') ?>">Dashboard</a>
+                    <a class="<?= is_active_path('/subscription') ? 'active' : ''; ?>" href="<?= url('/subscription') ?>">Assinatura</a>
                     <a class="<?= is_active_path('/pos') ? 'active' : ''; ?>" href="<?= url('/pos') ?>">Caixa</a>
+                    <a class="<?= is_active_path('/payments') ? 'active' : ''; ?>" href="<?= url('/payments') ?>">Vincular PIX</a>
                     <a class="<?= is_active_path('/products') ? 'active' : ''; ?>" href="<?= url('/products') ?>">Produtos</a>
                     <a class="<?= is_active_path('/stock') ? 'active' : ''; ?>" href="<?= url('/stock') ?>">Estoque</a>
                     <a class="<?= is_active_path('/sales') ? 'active' : ''; ?>" href="<?= url('/sales') ?>">Vendas</a>
+                    <?php if ($isAdmin): ?>
+                        <a class="<?= is_active_path('/admin') ? 'active' : ''; ?>" href="<?= url('/admin') ?>">Admin</a>
+                    <?php endif; ?>
                 </nav>
             </div>
 
@@ -51,21 +57,21 @@ $isExpired = ($user['plan_status'] ?? '') === 'expired';
             <header class="topbar">
                 <div>
                     <h1><?= e(app_name()); ?></h1>
-                    <p>Operação rápida para pequenos mercadinhos.</p>
+                    <p>Operacao rapida para pequenos mercadinhos.</p>
                 </div>
                 <div class="topbar-actions">
                     <span class="badge badge-<?= $isExpired ? 'danger' : 'success'; ?>">
                         Plano: <?= e($user['plan_status'] ?? 'trial'); ?>
                     </span>
                     <?php if (!empty($user['plan_expires_at'])): ?>
-                        <span class="muted">Até <?= date('d/m/Y', strtotime($user['plan_expires_at'])); ?></span>
+                        <span class="muted">Ate <?= date('d/m/Y', strtotime($user['plan_expires_at'])); ?></span>
                     <?php endif; ?>
                 </div>
             </header>
 
             <?php if ($isExpired): ?>
                 <div class="banner banner-warning">
-                    Seu plano expirou. Consultas continuam liberadas, mas vendas, cadastro e estoque estão bloqueados.
+                    Seu plano expirou. Scanner, caixa e cadastros ficam bloqueados ate o pagamento da assinatura.
                 </div>
             <?php endif; ?>
 

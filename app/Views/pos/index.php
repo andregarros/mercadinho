@@ -14,7 +14,8 @@
         </label>
 
         <div id="scanner" class="scanner-box hidden">
-            <div id="qr-reader"></div>
+            <div id="scanner-viewport" class="scanner-viewport"></div>
+            <div class="scanner-line"></div>
         </div>
         <div id="pos-feedback" class="feedback-text">Pronto para vender.</div>
 
@@ -41,8 +42,23 @@
         </div>
 
         <button class="btn btn-primary btn-lg" type="button" id="checkout-button">Finalizar venda</button>
+
+        <div id="pix-panel" class="pix-panel hidden">
+            <div class="card-head">
+                <h3>Pagamento PIX</h3>
+                <span id="pix-status-badge" class="badge">Aguardando pagamento</span>
+            </div>
+            <div class="pix-panel-body">
+                <img id="pix-qr-image" alt="QR Code PIX">
+                <label class="field">
+                    <span>Copia e cola</span>
+                    <textarea id="pix-copy-paste" rows="4" readonly></textarea>
+                </label>
+                <p id="pix-transaction" class="muted"></p>
+            </div>
+        </div>
     </article>
 </section>
 
-<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
 <script src="<?= asset('assets/js/pos.js'); ?>"></script>

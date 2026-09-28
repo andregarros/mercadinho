@@ -101,7 +101,7 @@ final class Product extends Model
              FROM itens_venda iv
              INNER JOIN produtos p ON p.id = iv.product_id
              INNER JOIN vendas v ON v.id = iv.sale_id
-             WHERE v.user_id = :user_id
+             WHERE v.user_id = :user_id AND v.payment_status = "paid"
              GROUP BY p.id, p.name
              ORDER BY total_quantity DESC
              LIMIT 1'

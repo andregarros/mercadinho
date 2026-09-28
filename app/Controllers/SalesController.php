@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Models\Payment;
 use App\Models\Sale;
 
 final class SalesController extends Controller
@@ -20,12 +21,18 @@ final class SalesController extends Controller
     {
         $this->requireAuth();
 
-        $sale = (new Sale())->findWithItems((int) ($_GET['id'] ?? 0), (int) auth_user()['id']);
+        $userId = (int) auth_user()['id'];
+        $sale = (new Sale())->findWithItems((int) ($_GET['id'] ?? 0), $userId);
         if (!$sale) {
-            flash('error', 'Venda não encontrada.');
+            flash('error', 'Venda nao encontrada.');
             $this->redirect('/sales');
         }
 
-        $this->view('sales/show', ['sale' => $sale]);
+        $payment = (new Payment())->findBySaleId((int) $sale['id'], $userId);
+
+        $this->view('sales/show', [
+            'sale' => $sale,
+            'payment' => $payment,
+        ]);
     }
 }

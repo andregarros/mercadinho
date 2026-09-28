@@ -32,8 +32,9 @@ final class Database
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ]);
         } catch (PDOException $exception) {
+            error_log('Database connection error: ' . $exception->getMessage());
             http_response_code(500);
-            echo 'Erro ao conectar ao banco de dados. Ajuste o arquivo config/app.php.';
+            echo 'Erro interno ao conectar ao banco de dados.';
             exit;
         }
 

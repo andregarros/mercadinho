@@ -16,10 +16,27 @@ final class Sale extends Model
                 COALESCE(SUM(CASE WHEN DATE(created_at) = CURDATE() THEN total_amount END), 0) AS daily_total,
                 COALESCE(SUM(CASE WHEN YEAR(created_at) = YEAR(CURDATE()) AND MONTH(created_at) = MONTH(CURDATE()) THEN total_amount END), 0) AS monthly_total
              FROM vendas
-             WHERE user_id = :user_id'
+             WHERE user_id = :user_id AND payment_status = "paid"'
         );
         $stmt->execute(['user_id' => $userId]);
         return $stmt->fetch() ?: ['daily_total' => 0, 'monthly_total' => 0];
+    }
+
+    public function totalsForAdminDashboard(): array
+    {
+        $stmt = $this->db->query(
+            'SELECT
+                COALESCE(SUM(CASE WHEN DATE(created_at) = CURDATE() AND payment_status = "paid" THEN total_amount END), 0) AS daily_total,
+                COALESCE(SUM(CASE WHEN YEAR(created_at) = YEAR(CURDATE()) AND MONTH(created_at) = MONTH(CURDATE()) AND payment_status = "paid" THEN total_amount END), 0) AS monthly_total,
+                COALESCE(SUM(CASE WHEN payment_status = "paid" THEN total_amount END), 0) AS lifetime_total
+             FROM vendas'
+        );
+
+        return $stmt->fetch() ?: [
+            'daily_total' => 0,
+            'monthly_total' => 0,
+            'lifetime_total' => 0,
+        ];
     }
 
     public function listByUser(int $userId): array
@@ -63,13 +80,16 @@ final class Sale extends Model
             }
 
             $saleStmt = $this->db->prepare(
-                'INSERT INTO vendas (user_id, payment_method, total_amount, created_at, updated_at)
-                 VALUES (:user_id, :payment_method, :total_amount, NOW(), NOW())'
+                'INSERT INTO vendas (user_id, payment_method, payment_status, total_amount, paid_at, created_at, updated_at)
+                 VALUES (:user_id, :payment_method, :payment_status, :total_amount, :paid_at, NOW(), NOW())'
             );
+            $isInstantPayment = $paymentMethod !== 'pix';
             $saleStmt->execute([
                 'user_id' => $userId,
                 'payment_method' => $paymentMethod,
+                'payment_status' => $isInstantPayment ? 'paid' : 'pending',
                 'total_amount' => $total,
+                'paid_at' => $isInstantPayment ? date('Y-m-d H:i:s') : null,
             ]);
 
             $saleId = (int) $this->db->lastInsertId();
@@ -126,5 +146,22 @@ final class Sale extends Model
             $this->db->rollBack();
             throw $exception;
         }
+    }
+
+    public function markAsPaid(int $saleId, string $paymentReference, string $paidAt): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE vendas
+             SET payment_status = "paid",
+                 payment_reference = :payment_reference,
+                 paid_at = :paid_at,
+                 updated_at = NOW()
+             WHERE id = :id'
+        );
+        $stmt->execute([
+            'payment_reference' => $paymentReference,
+            'paid_at' => $paidAt,
+            'id' => $saleId,
+        ]);
     }
 }
